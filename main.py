@@ -36,12 +36,7 @@ class TiledMap:
         ti = self.tmxdata.get_tile_image_by_gid
         for layer in self.tmxdata.visible_layers:
             if isinstance(layer, pytmx.TiledTileLayer):
-                for (
-                    x,
-                    y,
-                    gid,
-                ) in layer:
-                    tile = ti(gid)
+                for x, y, tile in layer.tiles():
                     if tile:
                         surface.blit(
                             tile,
@@ -126,12 +121,12 @@ class player:
     def draw(self):
         if self.left:
             self.x -= vel.x
-            walk_animation.draw(win, self.x - scroll[0], self.y, False, 0)
+            walk_animation.draw(win, self.x - scroll[0], self.y - scroll[1], True, 0)
         elif self.right:
             self.x += vel.x
-            walk_animation.draw(win, self.x - scroll[0], self.y, True, 0)
+            walk_animation.draw(win, self.x - scroll[0], self.y - scroll[1], False, 0)
         elif self.idle:
-            idle_animation.draw(win, self.x - scroll[0], self.y, 0, 0)
+            idle_animation.draw(win, self.x - scroll[0], self.y - scroll[1], 0, 0)
 
         if self.death:
             self.left = False
@@ -371,16 +366,22 @@ class GUI:
             clock.tick(60)
             left_border = 0
             right_border = self.map_img.get_width()
+            top_border = 0
+            bottom_border = self.map_img.get_height()
             true_scroll[0] += (man.x - true_scroll[0] - screenwidth // 4) / 20
             true_scroll[0] = max(left_border, true_scroll[0])
             true_scroll[0] = min(true_scroll[0], right_border - screenwidth)
+
+            true_scroll[1] += (man.y - true_scroll[1] - screenheight // 2) / 20
+            true_scroll[1] = max(top_border, true_scroll[1])
+            true_scroll[1] = min(true_scroll[1], bottom_border - screenheight)
 
             global scroll
             scroll = true_scroll.copy()
             scroll[0] = int(scroll[0])
             scroll[1] = int(scroll[1])
 
-            win.blit(self.map_img, (0 - scroll[0], 0))
+            win.blit(self.map_img, (0 - scroll[0], 0 - scroll[1]))
 
             alpha = 100
 
@@ -466,7 +467,7 @@ class GUI:
             # gravity
             if not (onGround):
                 man.y += vel.y
-            elif onGround or isjump:
+            elif onGround or man.isjump:
                 vel.y = 0
 
             if keys[pygame.K_ESCAPE]:
@@ -508,7 +509,7 @@ class GUI:
                         won = False
 
             if won:
-                chest_openAnimation.draw(win, chest_img.x, chest_img.y, 0, 0)
+                # chest_openAnimation.draw(win, chest_img.x, chest_img.y, 0, 0)
                 chest_openAnimation.update()
 
             coin_animation.update()
