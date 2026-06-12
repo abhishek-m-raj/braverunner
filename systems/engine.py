@@ -2,9 +2,7 @@ import os
 
 import pygame
 
-from load_data import *
-
-pygame.init()
+from load_data import font_folder
 
 
 def drawText(
