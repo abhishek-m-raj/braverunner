@@ -1,15 +1,11 @@
 import os
-import time
 
 import pygame
 import pytmx
-from pygame import *
 
 import engine
-
-# from wate import *
+import load_data
 from load_data import *
-from water import *
 
 pygame.init()
 pygame.mixer.init()
@@ -20,7 +16,7 @@ screenwidth = win.get_width()
 screenheight = win.get_height()
 controlsurf = pygame.Surface((screenwidth, screenheight))
 
-coin_animation = engine.Animation(coin_animation_list, 4)
+coin_animation = engine.Animation(load_data.coin_animation_list, 4)
 walk_animation = engine.Animation(walk_animation_list, 6)
 idle_animation = engine.Animation(idle_animation_list, 8)
 death_animation = engine.Animation(death_animation_list, 8)
@@ -156,30 +152,30 @@ class GUI:
         self.place = ""
         self.difficulty = "simple"
         self.number = 1
-        # self.maper = TiledMap(os.path.join(map_folder, self.place + self.difficulty + str(self.number) + '.tmx'))
+        # self.maper = TiledMap(os.path.join(maps_folder, self.place + self.difficulty + str(self.number) + '.tmx'))
         # self.map_img = self.maper.make_map().convert()
         # self.map_rect = self.map_img.get_rect()
 
     def main_menu(self):
         global screenwidth, screenheight, win, controlsurf
         classic_img = pygame.transform.scale(
-            pygame.image.load(os.path.join(gui_folder, "desert bt.png")), (100, 100)
+            pygame.image.load(os.path.join(menu_folder, "desert bt.png")), (100, 100)
         )
         deset_img = pygame.transform.scale(
-            pygame.image.load(os.path.join(gui_folder, "classic bt.png")), (100, 100)
+            pygame.image.load(os.path.join(menu_folder, "classic bt.png")), (100, 100)
         )
         bg_surf = pygame.transform.scale(
-            pygame.image.load(os.path.join(gui_folder, "background.png")),
+            pygame.image.load(os.path.join(menu_folder, "background.png")),
             (screenwidth, screenheight),
         )
         pinkey_img = pygame.image.load(
-            os.path.join(sprite_folder, "Pink_Monster.png")
+            os.path.join(player_folder, "Pink_Monster.png")
         ).convert()
         scaled_pinkey = pygame.transform.scale(
             pinkey_img, (int(screenwidth / 3), int(screenheight - 400))
         )
         play_btn_img = pygame.image.load("play.png")
-        back_btn_img = pygame.image.load(os.path.join(gui_folder, "back.png"))
+        back_btn_img = pygame.image.load(os.path.join(menu_folder, "back.png"))
 
         pygame.mixer.Sound.play(menuBG, -1)
 
@@ -213,7 +209,7 @@ class GUI:
                     controlsurf = pygame.Surface((screenwidth, screenheight))
 
                     bg_surf = pygame.transform.scale(
-                        pygame.image.load(os.path.join(gui_folder, "background.png")),
+                        pygame.image.load(os.path.join(menu_folder, "background.png")),
                         (screenwidth, screenheight),
                     )
                     scaled_pinkey = pygame.transform.scale(
@@ -236,7 +232,7 @@ class GUI:
                     self.place = "desert"
                     self.maper = TiledMap(
                         os.path.join(
-                            map_folder,
+                            maps_folder,
                             "desert" + self.difficulty + str(self.number) + ".tmx",
                         )
                     )
@@ -252,7 +248,7 @@ class GUI:
                     self.place = "classic"
                     self.maper = TiledMap(
                         os.path.join(
-                            map_folder,
+                            maps_folder,
                             "classic" + self.difficulty + str(self.number) + ".tmx",
                         )
                     )
@@ -269,7 +265,7 @@ class GUI:
     def options(self):
         global screenwidth, screenheight, win, controlsurf
         running = True
-        back_btn_img = pygame.image.load(os.path.join(gui_folder, "back.png"))
+        back_btn_img = pygame.image.load(os.path.join(menu_folder, "back.png"))
         while running:
             clock.tick(60)
             win.fill((0, 0, 0))
@@ -365,10 +361,10 @@ class GUI:
         #     water_test = water(water_metric[0],water_metric[1],water_metric[2],water_metric[3],water_metric[4])
         #     temp_surface.blit(water_test.draw(temp_surface,water_test,self.map_rect.width,self.map_rect.height,alpha), (0,0))
 
-        back_btn_img = pygame.image.load(os.path.join(gui_folder, "back.png"))
-        pause_btn_img = pygame.image.load(os.path.join(gui_folder, "pause.png"))
+        back_btn_img = pygame.image.load(os.path.join(menu_folder, "back.png"))
+        pause_btn_img = pygame.image.load(os.path.join(menu_folder, "pause.png"))
         chest_open1_img = pygame.image.load(
-            os.path.join(items_folder, "chest_open1.png")
+            os.path.join(chest_folder, "chest_open1.png")
         )
 
         while run:
