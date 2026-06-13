@@ -3,18 +3,6 @@ import os
 import pygame
 
 pygame.init()
-vec = pygame.math.Vector2
-
-true_scroll = [0, 0]
-vel = vec(10, 10)
-paused = False
-walkcount = 0
-
-coltolerance = 10
-coin_collected = 0
-onGround = False
-onWater = False
-won = False
 
 # Base Folders
 game_folder = os.path.dirname(__file__)
@@ -45,13 +33,6 @@ spalsh_sound1 = pygame.mixer.Sound(os.path.join(sfx_folder, "splash1.wav"))
 spalsh_sound2 = pygame.mixer.Sound(os.path.join(sfx_folder, "splash2.wav"))
 jumpland = pygame.mixer.Sound(os.path.join(sfx_folder, "jumpland.wav"))
 
-obstacle = []
-coins = []
-waters = []
-items = []
-water_hitbox = []
-mushrooms = []
-
 coin_animation_list = [
     pygame.image.load(os.path.join(coin_folder, f"coin{i}.png")) for i in range(1, 9)
 ]
@@ -78,10 +59,20 @@ chest_openAnimation_list = [
     for i in range(1, 3)
 ]
 
-# HUD and Menu Images
 coin_img = pygame.image.load(os.path.join(coin_folder, "coin1.png"))
 # pinkey_img = pygame.image.load(os.path.join(player_folder, 'Pink_Monster.png')).convert()
 
-uparrow_img = pygame.image.load(os.path.join(menu_folder, "uparrow.png"))
-rightarrow_img = pygame.image.load(os.path.join(menu_folder, "rightarrow.png"))
-leftarrow_img = pygame.image.load(os.path.join(menu_folder, "leftarrow.png"))
+levels = {
+    "classic": {
+        os.path.join(
+            maps_folder,
+            "classic" + "simple" + "1" + ".tmx",
+        )
+    },
+    "desert": {
+        os.path.join(
+            maps_folder,
+            "desert" + "simple" + "1" + ".tmx",
+        )
+    },
+}

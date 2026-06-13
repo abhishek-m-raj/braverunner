@@ -66,6 +66,7 @@ class Player:
 
     def jump(self):
         if self.jumps_made < 2:
+            pygame.mixer.Sound.play(load_data.jumpland)
             self.isjump = True
             self.onGround = False
             self.jumps_made += 1

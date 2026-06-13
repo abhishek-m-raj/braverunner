@@ -1,22 +1,17 @@
 import os
 import sys
-from cmath import e
 
 import pygame
 
-from load_data import maps_folder, menu_folder, menuBG, player_folder
-from states.level import Level
-from systems.tilemap import TiledMap
+from load_data import menu_folder, menuBG, player_folder
+from settings import FPS
+from states.levels_menu import LevelsMenu
+from utils.button import Button
 
 
 class MainMenu:
     def __init__(self):
-        self.place = ""
-        self.difficulty = "simple"
-        self.number = 1
-        self.maper = None
-        self.map_img = None
-        self.map_rect = None
+        self.levels_menu_screen = LevelsMenu()
 
     def draw(self):
         win = pygame.display.get_surface()
@@ -26,13 +21,6 @@ class MainMenu:
         screenwidth, screenheight = win.get_size()
         clock = pygame.time.Clock()
 
-        desert_img = pygame.transform.scale(
-            pygame.image.load(os.path.join(menu_folder, "desert bt.png")), (100, 100)
-        )
-        classic_img = pygame.transform.scale(
-            pygame.image.load(os.path.join(menu_folder, "classic bt.png")), (100, 100)
-        )
-
         bg_surf = pygame.transform.scale(
             pygame.image.load(os.path.join(menu_folder, "background.png")),
             (screenwidth, screenheight),
@@ -40,33 +28,18 @@ class MainMenu:
         pinkey_img = pygame.image.load(
             os.path.join(player_folder, "Pink_Monster.png")
         ).convert_alpha()
+        pinkey_img = pygame.transform.scale(pinkey_img, (360, 360))
 
-        scaled_pinkey = pygame.transform.scale(
-            pinkey_img, (int(screenwidth / 3), int(screenheight - 400))
-        )
-
-        play_btn_img = pygame.image.load("play.png").convert_alpha()
-        back_btn_img = pygame.image.load(
-            os.path.join(menu_folder, "back.png")
-        ).convert_alpha()
-
-        pygame.mixer.Sound.play(menuBG, -1)
+        buttons = self.init_buttons(win)
+        menuBG.play(-1)
 
         while True:
-            clock.tick(60)
+            clock.tick(FPS)
             win.blit(bg_surf, (0, 0))
+            self.draw_btns(win, buttons)
 
-            classic_rect = win.blit(classic_img, (500, 500))
-            desert_rect = win.blit(desert_img, (500, 650))
-            win.blit(scaled_pinkey, (screenwidth / 2 - 200, 200))
-            play_img_rect = win.blit(play_btn_img, (screenwidth / 2, screenheight / 2))
+            win.blit(pinkey_img, (screenwidth / 2 - (pinkey_img.get_width() / 2), 200))
 
-            options_rect = pygame.draw.rect(
-                win, (255, 0, 0), (screenwidth / 2, screenheight / 4, 300, 100)
-            )
-            back_img_rect = win.blit(back_btn_img, (50, 50))
-
-            clicked = False
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -82,49 +55,58 @@ class MainMenu:
                         pygame.image.load(os.path.join(menu_folder, "background.png")),
                         (screenwidth, screenheight),
                     )
-                    scaled_pinkey = pygame.transform.scale(
-                        pinkey_img, (int(screenwidth / 3), int(screenheight - 400))
-                    )
-
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        clicked = True
-
-            mx, my = pygame.mouse.get_pos()
-
-            if back_img_rect.collidepoint(mx, my) and clicked:
-                pygame.quit()
-                sys.exit()
-            elif desert_rect.collidepoint(mx, my) and clicked:
-                if self.place != "desert":
-                    self.place = "desert"
-                    self.maper = TiledMap(
-                        os.path.join(
-                            maps_folder,
-                            "desert" + self.difficulty + str(self.number) + ".tmx",
-                        )
-                    )
-                    self.map_img = self.maper.make_map()
-                    self.map_rect = self.map_img.get_rect()
-            elif play_img_rect.collidepoint(mx, my) and clicked:
-                if self.place != "":
-                    pygame.mixer.Sound.stop(menuBG)
-                    Level(self.maper).draw()
-            elif classic_rect.collidepoint(mx, my) and clicked:
-                if self.place != "classic":
-                    self.place = "classic"
-                    self.maper = TiledMap(
-                        os.path.join(
-                            maps_folder,
-                            "classic" + self.difficulty + str(self.number) + ".tmx",
-                        )
-                    )
-                    self.map_img = self.maper.make_map()
-                    self.map_rect = self.map_img.get_rect()
-
-            if self.place == "classic":
-                pygame.draw.rect(win, (0, 0, 0), classic_rect, 3)
-            elif self.place == "desert":
-                pygame.draw.rect(win, (0, 0, 0), desert_rect, 3)
 
             pygame.display.flip()
+
+    def init_buttons(self, win):
+        buttons = []
+        sw = win.get_size()[0]
+        sh = win.get_size()[1]
+        button_bg_image = pygame.image.load(
+            os.path.join(menu_folder, "ButtonBg/Default.png")
+        )
+        button_bg_image_hover = pygame.image.load(
+            os.path.join(menu_folder, "ButtonBg/Hover.png")
+        )
+        play_button_icon = pygame.image.load(
+            os.path.join(menu_folder, "Icons/Play.png")
+        )
+        back_button_icon = pygame.image.load(
+            os.path.join(menu_folder, "Icons/ArrowLeft-Thin.png")
+        )
+        play_btn = Button(
+            x=sw / 2 - 250 / 2,
+            y=sh - 50 - 90 / 2,
+            width=250,
+            height=70,
+            image=button_bg_image,
+            hover_image=button_bg_image_hover,
+            pressed_image=button_bg_image,
+            icon=play_button_icon,
+            icon_size=30,
+            on_click=lambda: self.play(win),
+        )
+        back_btn = Button(
+            x=10,
+            y=10,
+            width=50,
+            height=50,
+            image=button_bg_image,
+            hover_image=button_bg_image_hover,
+            pressed_image=button_bg_image,
+            icon=back_button_icon,
+            icon_size=30,
+            on_click=lambda: pygame.quit(),
+        )
+        buttons.append(play_btn)
+        buttons.append(back_btn)
+        return buttons
+
+    def draw_btns(self, win, buttons):
+        for btn in buttons:
+            btn.handle_event()
+            btn.update()
+            btn.draw(win)
+
+    def play(self, win):
+        self.levels_menu_screen.draw(win)

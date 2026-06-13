@@ -54,27 +54,36 @@ class Position:
 
 
 class Animation:
-    def __init__(self, imageList, animationSpeed):
+    def __init__(self, imageList, animationSpeed, loop=True):
         self.imageList = imageList
         self.imageIndex = 0
         self.animationTimer = 0
         self.animationSpeed = animationSpeed
+        self.loop = loop
+        self.finished = False
 
     def update(self):
-        # increment the timer
         self.animationTimer += 1
-        # if the timer gets too high...
         if self.animationTimer >= self.animationSpeed:
-            # reset the timer
             self.animationTimer = 0
-            # increment the current image
             self.imageIndex += 1
-            # loop back to the first image in the list
-            # once the index gets too high
-            if self.imageIndex > len(self.imageList) - 1:
-                self.imageIndex = 0
 
-    def draw(self, screen, x, y, flipX, flipY):
+            if self.imageIndex > len(self.imageList) - 1:
+                if self.loop:
+                    self.imageIndex = 0
+                else:
+                    self.imageIndex = len(self.imageList) - 1
+                    self.finished = True
+
+    def draw(self, screen, x, y, flipX=False, flipY=False):
         screen.blit(
             pygame.transform.flip(self.imageList[self.imageIndex], flipX, flipY), (x, y)
         )
+
+    def reset(self):
+        self.imageIndex = 0
+        self.animationTimer = 0
+        self.finished = False
+
+    def get_current_image(self):
+        return self.imageList[self.imageIndex]
