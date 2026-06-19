@@ -1,10 +1,13 @@
 import os
+import random
 
 import pygame
 
 import load_data
-from entities.player import Player
-from load_data import coin_img, coin_sound, menu_folder
+from entities.enemy import Mushroom
+from entities.player import Player, death_animation
+from entities.water import WaterBody
+from load_data import coin_img, coin_sound, menu_folder, spalsh_sound1, spalsh_sound2
 from settings import DEBUG, GRAVITY, VELOCITY
 from states.overlay import GameOverlay
 from systems import engine
@@ -34,9 +37,23 @@ class Level:
             "Level Complete!",
             [{"text": "Home", "status": "home"}, {"text": "Quit", "status": "quit"}],
         )
+        self.death_overlay = GameOverlay(
+            "Game Over",
+            [
+                {"text": "Restart", "status": "restart"},
+                {"text": "Home", "status": "home"},
+                {"text": "Quit", "status": "quit"},
+            ],
+        )
+        self.enemies = []
+        self.water_bodies = []
 
     def draw(self):
         run = True
+        self.enemies = []
+        self.water_bodies = []
+        self.coins = []
+        self.coin_collected = 0
         win = pygame.display.get_surface()
         if win is None:
             return
@@ -64,8 +81,18 @@ class Level:
                     tile_object.x, tile_object.y, tile_object.width, tile_object.height
                 )
                 self.goal_rect = goal_rect
+            elif tile_object.name == "mushroom":
+                self.enemies.append(Mushroom(tile_object.x, tile_object.y))
+            elif tile_object.name == "water":
+                self.water_bodies.append(
+                    WaterBody(
+                        tile_object.x,
+                        tile_object.y,
+                        tile_object.width,
+                        tile_object.height,
+                    )
+                )
 
-        # UI Buttons
         button_bg = pygame.image.load(os.path.join(menu_folder, "ButtonBg/Default.png"))
         button_bg_hover = pygame.image.load(
             os.path.join(menu_folder, "ButtonBg/Hover.png")
@@ -89,6 +116,48 @@ class Level:
                 import sys
 
                 sys.exit()
+
+        def on_player_death():
+            player.death = True
+            death_animation.reset()
+            while not death_animation.finished:
+                clock.tick(60)
+                # Redraw world to show animation frames
+                self.camera_update(player, win, screenwidth, screenheight)
+                self.draw_coins(win, player_hitbox)
+                player.update_animations()
+                player.draw(win, self.scroll)
+                for e in self.enemies:
+                    e.draw(win, self.scroll)
+                for water in self.water_bodies:
+                    water.draw(win, self.scroll)
+                pygame.display.flip()
+
+            # Final frame where player is hidden
+            self.camera_update(player, win, screenwidth, screenheight)
+            self.draw_coins(win, player_hitbox)
+            player.draw(win, self.scroll)
+            for e in self.enemies:
+                e.draw(win, self.scroll)
+            for water in self.water_bodies:
+                water.draw(win, self.scroll)
+            pygame.display.flip()
+            pygame.time.delay(300)
+
+            status = self.death_overlay.draw(win)
+            if status == "restart":
+                player.reset_death()
+                self.draw()
+                return True
+            elif status == "home":
+                nonlocal run
+                run = False
+            elif status == "quit":
+                pygame.quit()
+                import sys
+
+                sys.exit()
+            return False
 
         back_btn = Button(
             50,
@@ -145,6 +214,25 @@ class Level:
 
                     sys.exit()
 
+            # Enemy updates and collisions
+            for enemy in self.enemies:
+                enemy.update(self.obstacles)
+                if player_hitbox.colliderect(enemy.rect):
+                    # Jump on head to kill
+                    if (
+                        VELOCITY.y > 0
+                        and player_hitbox.bottom < enemy.rect.centery + 10
+                    ):
+                        # Drop a coin where the enemy was
+                        coin_drop = pygame.Rect(enemy.x, enemy.y, 32, 32)
+                        self.coins.append(coin_drop)
+
+                        self.enemies.remove(enemy)
+                        VELOCITY.y = -12  # Bounce
+                    else:
+                        if on_player_death():
+                            return
+
             player_hitbox = pygame.Rect(player.x + 22, player.y + 22, 20, 42)
             for obstacle in self.obstacles:
                 if player_hitbox.colliderect(obstacle):
@@ -167,6 +255,12 @@ class Level:
                         VELOCITY.y = 0
                         player.isjump = False
                     player_hitbox.y = player.y + 22  # Keep hitbox in sync
+
+            for water in self.water_bodies:
+                if water.update(player_hitbox, VELOCITY.y):
+                    pygame.mixer.Sound.play(
+                        spalsh_sound1 if random.random() < 0.5 else spalsh_sound2
+                    )
 
             if DEBUG:
                 self.draw_debug_hitboxes(win, player)
@@ -214,6 +308,13 @@ class Level:
             coin_animation.update()
             player.update_animations()
             player.draw(win, self.scroll)
+
+            for enemy in self.enemies:
+                enemy.draw(win, self.scroll)
+
+            for water in self.water_bodies:
+                water.draw(win, self.scroll)
+
             pygame.display.flip()
 
     def camera_update(self, player, win, screenwidth, screenheight):

@@ -6,7 +6,7 @@ from systems import engine
 
 walk_animation = engine.Animation(load_data.walk_animation_list, 6)
 idle_animation = engine.Animation(load_data.idle_animation_list, 8)
-death_animation = engine.Animation(load_data.death_animation_list, 8)
+death_animation = engine.Animation(load_data.death_animation_list, 8, loop=False)
 
 
 class Player:
@@ -23,6 +23,7 @@ class Player:
         self.height = 64
         self.x = 0
         self.y = 0
+        self.last_flip = False
 
     def setlocation(self, x, y):
         self.x = x
@@ -51,11 +52,13 @@ class Player:
         self.left = True
         self.right = False
         self.idle = False
+        self.last_flip = True
 
     def move_right(self):
         self.right = True
         self.left = False
         self.idle = False
+        self.last_flip = False
 
     def stop_moving(self):
         if not self.death:
@@ -86,17 +89,24 @@ class Player:
         screen_x = self.x - scroll[0]
         screen_y = self.y - scroll[1]
 
-        if self.left:
-            walk_animation.draw(win, screen_x, screen_y, True, 0)
-        elif self.right:
-            walk_animation.draw(win, screen_x, screen_y, False, 0)
-        elif self.idle:
-            idle_animation.draw(win, screen_x, screen_y, 0, 0)
-
         if self.death:
-            death_animation.draw(win, screen_x, screen_y, 0, 0)
+            if not death_animation.finished:
+                death_animation.draw(win, screen_x, screen_y, self.last_flip)
+        elif self.left:
+            walk_animation.draw(win, screen_x, screen_y, True)
+        elif self.right:
+            walk_animation.draw(win, screen_x, screen_y, False)
+        elif self.idle:
+            idle_animation.draw(win, screen_x, screen_y, self.last_flip)
+
+    def reset_death(self):
+        self.death = False
+        death_animation.reset()
 
     def update_animations(self):
-        walk_animation.update()
-        death_animation.update()
-        idle_animation.update()
+        if self.death:
+            death_animation.update()
+        elif self.idle:
+            idle_animation.update()
+        else:
+            walk_animation.update()

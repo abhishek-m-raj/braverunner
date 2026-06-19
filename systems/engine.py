@@ -74,6 +74,7 @@ class Animation:
                 else:
                     self.imageIndex = len(self.imageList) - 1
                     self.finished = True
+                    return  # Stop updating once finished
 
     def draw(self, screen, x, y, flipX=False, flipY=False):
         screen.blit(
