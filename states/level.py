@@ -265,6 +265,8 @@ class Level:
             if DEBUG:
                 self.draw_debug_hitboxes(win, player)
 
+            self.draw_coins(win, player_hitbox)
+
             back_btn.handle_event()
             back_btn.update()
             back_btn.draw(win)
@@ -273,7 +275,18 @@ class Level:
             pause_btn.update()
             pause_btn.draw(win)
 
-            self.draw_coins(win, player_hitbox)
+            button_bg_2 = pygame.transform.scale(button_bg, (60, 60))
+            win.blit(button_bg_2, (screenwidth - 100, 50))
+            win.blit(coin_img, (screenwidth - 95, 60))
+            engine.drawText(
+                win,
+                str(self.coin_collected),
+                screenwidth - 60,
+                75,
+                ((0, 0, 0)),
+                24,
+                align="c",
+            )
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -293,17 +306,6 @@ class Level:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE]:
                 on_pause_click()
-
-            win.blit(coin_img, (screenwidth - 40, 10))
-            engine.drawText(
-                win,
-                str(self.coin_collected),
-                screenwidth - 55,
-                1,
-                ((0, 0, 0)),
-                32,
-                align="tl",
-            )
 
             coin_animation.update()
             player.update_animations()

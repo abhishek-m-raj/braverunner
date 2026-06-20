@@ -87,10 +87,10 @@ class MainMenu:
             on_click=lambda: self.play(win),
         )
         back_btn = Button(
-            x=10,
-            y=10,
-            width=50,
-            height=50,
+            x=50,
+            y=50,
+            width=60,
+            height=60,
             image=button_bg_image,
             hover_image=button_bg_image_hover,
             pressed_image=button_bg_image,
