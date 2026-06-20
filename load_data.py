@@ -62,6 +62,9 @@ chest_openAnimation_list = [
 coin_img = pygame.image.load(os.path.join(coin_folder, "coin1.png"))
 # pinkey_img = pygame.image.load(os.path.join(player_folder, 'Pink_Monster.png')).convert()
 
+FONT_NAME = "ChakraPetch-Bold.ttf"
+FONT_PATH = os.path.join(font_folder, FONT_NAME)
+
 LEVELS = [
     {"id": "classic1", "path": os.path.join(maps_folder, "classic1.tmx"), "category": "classic", "name": "Classic 1"},
     {"id": "classic2", "path": os.path.join(maps_folder, "classic2.tmx"), "category": "classic", "name": "Classic 2"},

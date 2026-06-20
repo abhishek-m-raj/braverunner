@@ -3,7 +3,7 @@ import sys
 
 import pygame
 
-from load_data import menu_folder
+from load_data import FONT_PATH, menu_folder
 from utils.button import Button
 
 
@@ -77,9 +77,9 @@ class GameOverlay:
             # Blit translucent background
             win.blit(overlay_surf, (0, 0))
             # Draw Title
-            font = pygame.font.Font(None, 80)
+            font = pygame.font.Font(FONT_PATH, 80)
             title_surf = font.render(self.title, True, (255, 255, 255))
-            win.blit(title_surf, (sw // 2 - title_surf.get_width() // 2, sh // 2 - 150))
+            win.blit(title_surf, (sw // 2 - title_surf.get_width() // 2, sh // 2 - 200))
 
             for btn in buttons:
                 btn.handle_event()

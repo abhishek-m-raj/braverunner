@@ -3,7 +3,7 @@ import sys
 
 import pygame
 
-from load_data import LEVELS, levels, menu_folder, menuBG
+from load_data import FONT_PATH, LEVELS, levels, menu_folder, menuBG
 from save_manager import is_level_unlocked, load_save
 from settings import FPS
 from states.level import Level
@@ -170,7 +170,7 @@ class LevelsMenu:
                 if current_category is None
                 else f"{current_category.capitalize()} Levels"
             )
-            font = pygame.font.Font(None, 50)
+            font = pygame.font.Font(FONT_PATH, 50)
             title_surf = font.render(title_text, True, (255, 255, 255))
             win.blit(title_surf, (sw // 2 - title_surf.get_width() // 2, 50))
 

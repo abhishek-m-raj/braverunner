@@ -6,7 +6,16 @@ from load_data import font_folder
 
 
 def drawText(
-    screen, t, x, y, c, size, hold=False, holdside="", align="c", fonte="Mukta.ttf"
+    screen,
+    t,
+    x,
+    y,
+    c,
+    size,
+    hold=False,
+    holdside="",
+    align="c",
+    fonte="ChakraPetch-Bold.ttf",
 ):
     fontstyle = os.path.join(font_folder, fonte)
     font = pygame.font.Font(fontstyle, size)
@@ -17,14 +26,14 @@ def drawText(
     text_rectangle = text.get_rect()
     if align == "c":
         text_rectangle.center = (x, y)
-    elif align == "l":
-        text_rectangle.left = (x, y)
-    elif align == "r":
-        text_rectangle.right = (x, y)
-    elif align == "t":
-        text_rectangle.top = (x, y)
-    elif align == "b":
-        text_rectangle.bottom = (x, y)
+    # elif align == "l":
+    #     text_rectangle.left = (x, y)
+    # elif align == "r":
+    #     text_rectangle.right = (x, y)
+    # elif align == "t":
+    #     text_rectangle.top = (x, y)
+    # elif align == "b":
+    #     text_rectangle.bottom = (x, y)
     elif align == "tl":
         text_rectangle.topleft = (x, y)
     elif align == "tr":

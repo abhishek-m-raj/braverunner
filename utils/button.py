@@ -1,5 +1,7 @@
 import pygame
 
+from load_data import FONT_PATH
+
 
 class Button:
     """Enhanced button class with image support and press animations"""
@@ -35,7 +37,7 @@ class Button:
         self.text_color = text_color
         self.font_size = 36
         self.bold = False
-        self.font = pygame.font.Font(None, self.font_size)
+        self.font = pygame.font.Font(FONT_PATH, self.font_size)
         self.text_surface = None
         if text:
             self.text_surface = self.font.render(self.text, True, self.text_color)
@@ -89,7 +91,7 @@ class Button:
         """Update font size and weight"""
         self.font_size = font_size
         self.bold = bold
-        self.font = pygame.font.Font(None, self.font_size)
+        self.font = pygame.font.Font(FONT_PATH, self.font_size)
         self.font.set_bold(self.bold)
         if self.text:
             self.text_surface = self.font.render(self.text, True, self.text_color)
@@ -270,7 +272,7 @@ class TextButton(Button):
 
     def __init__(self, x, y, width, height, text, on_click, font_size=36, **kwargs):
         super().__init__(x, y, width, height, on_click, text=text, **kwargs)
-        self.font = pygame.font.Font(None, font_size)
+        self.font = pygame.font.Font(FONT_PATH, font_size)
         self.text_surface = self.font.render(self.text, True, self.text_color)
 
 
