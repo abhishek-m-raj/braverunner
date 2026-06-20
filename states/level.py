@@ -7,7 +7,8 @@ import load_data
 from entities.enemy import Mushroom
 from entities.player import Player, death_animation
 from entities.water import WaterBody
-from load_data import coin_img, coin_sound, menu_folder, spalsh_sound1, spalsh_sound2
+from load_data import LEVELS, coin_img, coin_sound, menu_folder, spalsh_sound1, spalsh_sound2
+from save_manager import complete_level, get_next_level
 from settings import DEBUG, GRAVITY, VELOCITY
 from states.overlay import GameOverlay
 from systems import engine
@@ -17,8 +18,9 @@ coin_animation = engine.Animation(load_data.coin_animation_list, 4)
 
 
 class Level:
-    def __init__(self, maper):
+    def __init__(self, maper, level_id=None):
         self.maper = maper
+        self.level_id = level_id
         self.map_img = self.maper.make_map().convert()
         self.goal_rect = None
         self.coin_collected = 0
@@ -32,10 +34,6 @@ class Level:
                 {"text": "Home", "status": "home"},
                 {"text": "Quit", "status": "quit"},
             ],
-        )
-        self.win_overlay = GameOverlay(
-            "Level Complete!",
-            [{"text": "Home", "status": "home"}, {"text": "Quit", "status": "quit"}],
         )
         self.death_overlay = GameOverlay(
             "Game Over",
@@ -205,8 +203,33 @@ class Level:
             player.y += VELOCITY.y
 
             if self.goal_rect and player_hitbox.colliderect(self.goal_rect):
-                status = self.win_overlay.draw(win)
-                if status == "home":
+                if self.level_id:
+                    complete_level(self.level_id)
+
+                next_level = get_next_level(self.level_id, LEVELS) if self.level_id else None
+                if next_level:
+                    win_buttons = [
+                        {"text": "Next Level", "status": "next"},
+                        {"text": "Home", "status": "home"},
+                        {"text": "Quit", "status": "quit"},
+                    ]
+                    next_path = next_level["path"]
+                    next_id = next_level["id"]
+                else:
+                    win_buttons = [
+                        {"text": "Home", "status": "home"},
+                        {"text": "Quit", "status": "quit"},
+                    ]
+                    next_path = None
+                    next_id = None
+                win_overlay = GameOverlay("Level Complete!", win_buttons)
+                status = win_overlay.draw(win)
+                if status == "next":
+                    from systems.tilemap import TiledMap
+                    maper = TiledMap(next_path)
+                    Level(maper, level_id=next_id).draw()
+                    return
+                elif status == "home":
                     run = False
                 elif status == "quit":
                     pygame.quit()

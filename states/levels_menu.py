@@ -3,7 +3,8 @@ import sys
 
 import pygame
 
-from load_data import levels, menu_folder, menuBG
+from load_data import LEVELS, levels, menu_folder, menuBG
+from save_manager import is_level_unlocked, load_save
 from settings import FPS
 from states.level import Level
 from systems.tilemap import TiledMap
@@ -30,6 +31,9 @@ class LevelsMenu:
         graveyard_img = pygame.image.load(os.path.join(menu_folder, "graveyard bt.png"))
         level_unlocked_img = pygame.image.load(
             os.path.join(menu_folder, "Level/Unlocked.png")
+        )
+        level_locked_img = pygame.image.load(
+            os.path.join(menu_folder, "Level/Locked.png")
         )
         button_bg_image = pygame.image.load(
             os.path.join(menu_folder, "ButtonBg/Default.png")
@@ -60,6 +64,8 @@ class LevelsMenu:
             icon_size=30,
             on_click=on_back_click,
         )
+
+        completed_levels = load_save().get("completed_levels", [])
 
         def create_category_buttons():
             sw, sh = win.get_size()
@@ -109,19 +115,27 @@ class LevelsMenu:
             if category not in levels:
                 return btns
 
-            cat_levels = list(levels[category])
-            cat_levels.sort()
+            cat_levels = levels[category]
 
             cols = 4
             start_x = sw // 2 - (cols * (LEVEL_BUTTON_SIZE + BUTTON_SPACING)) // 2
 
-            for i, path in enumerate(cat_levels):
+            for i, level_info in enumerate(cat_levels):
                 row = i // cols
                 col = i % cols
 
-                # Capture path in closure
-                def make_on_click(p):
-                    return lambda: self.start_level(win, p)
+                locked = not is_level_unlocked(
+                    level_info["id"], LEVELS, completed_levels
+                )
+                btn_image = level_locked_img if locked else level_unlocked_img
+
+                def make_on_click(info):
+                    def on_click():
+                        self.start_level(win, info)
+                        nonlocal completed_levels, active_buttons
+                        completed_levels = load_save().get("completed_levels", [])
+                        active_buttons = create_level_buttons(current_category)
+                    return on_click
 
                 btn = Button(
                     x=start_x + col * (LEVEL_BUTTON_SIZE + BUTTON_SPACING),
@@ -129,9 +143,9 @@ class LevelsMenu:
                     width=LEVEL_BUTTON_SIZE,
                     height=LEVEL_BUTTON_SIZE,
                     text=str(i + 1),
-                    image=level_unlocked_img,
+                    image=btn_image,
                     text_color=(55, 51, 49),
-                    on_click=make_on_click(path),
+                    on_click=make_on_click(level_info) if not locked else lambda: None,
                 )
                 btn.set_font(font_size=50, bold=True)
                 btns.append(btn)
@@ -195,8 +209,8 @@ class LevelsMenu:
 
             pygame.display.flip()
 
-    def start_level(self, win, path):
+    def start_level(self, win, level_info):
         menuBG.stop()
-        maper = TiledMap(path)
-        Level(maper).draw()
+        maper = TiledMap(level_info["path"])
+        Level(maper, level_id=level_info["id"]).draw()
         menuBG.play(-1)

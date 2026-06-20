@@ -62,27 +62,16 @@ chest_openAnimation_list = [
 coin_img = pygame.image.load(os.path.join(coin_folder, "coin1.png"))
 # pinkey_img = pygame.image.load(os.path.join(player_folder, 'Pink_Monster.png')).convert()
 
-levels = {
-    "classic": {
-        os.path.join(
-            maps_folder,
-            "classic1.tmx",
-        ),
-        os.path.join(
-            maps_folder,
-            "classic2.tmx",
-        ),
-    },
-    "desert": {
-        os.path.join(
-            maps_folder,
-            "desert1.tmx",
-        )
-    },
-    "graveyard": {
-        os.path.join(
-            maps_folder,
-            "graveyard1.tmx",
-        )
-    },
-}
+LEVELS = [
+    {"id": "classic1", "path": os.path.join(maps_folder, "classic1.tmx"), "category": "classic", "name": "Classic 1"},
+    {"id": "classic2", "path": os.path.join(maps_folder, "classic2.tmx"), "category": "classic", "name": "Classic 2"},
+    {"id": "desert1", "path": os.path.join(maps_folder, "desert1.tmx"), "category": "desert", "name": "Desert 1"},
+    {"id": "graveyard1", "path": os.path.join(maps_folder, "graveyard1.tmx"), "category": "graveyard", "name": "Graveyard 1"},
+]
+
+levels = {}
+for lvl in LEVELS:
+    cat = lvl["category"]
+    if cat not in levels:
+        levels[cat] = []
+    levels[cat].append(lvl)
