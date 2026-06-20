@@ -27,6 +27,7 @@ class LevelsMenu:
         # Load images
         classic_img = pygame.image.load(os.path.join(menu_folder, "classic bt.png"))
         desert_img = pygame.image.load(os.path.join(menu_folder, "desert bt.png"))
+        graveyard_img = pygame.image.load(os.path.join(menu_folder, "graveyard bt.png"))
         level_unlocked_img = pygame.image.load(
             os.path.join(menu_folder, "Level/Unlocked.png")
         )
@@ -64,11 +65,14 @@ class LevelsMenu:
             sw, sh = win.get_size()
             btns = []
 
-            # Classic Button
+            total_width = 3 * CAT_BUTTON_SIZE + 2 * BUTTON_SPACING
+            start_x = (sw - total_width) // 2
+            y = sh // 2 - CAT_BUTTON_SIZE // 2
+
             btns.append(
                 Button(
-                    x=sw // 2 - CAT_BUTTON_SIZE - BUTTON_SPACING,
-                    y=sh // 2 - CAT_BUTTON_SIZE // 2,
+                    x=start_x,
+                    y=y,
                     width=CAT_BUTTON_SIZE,
                     height=CAT_BUTTON_SIZE,
                     image=classic_img,
@@ -76,15 +80,25 @@ class LevelsMenu:
                 )
             )
 
-            # Desert Button
             btns.append(
                 Button(
-                    x=sw // 2 + BUTTON_SPACING,
-                    y=sh // 2 - CAT_BUTTON_SIZE // 2,
+                    x=start_x + CAT_BUTTON_SIZE + BUTTON_SPACING,
+                    y=y,
                     width=CAT_BUTTON_SIZE,
                     height=CAT_BUTTON_SIZE,
                     image=desert_img,
                     on_click=lambda: set_category("desert"),
+                )
+            )
+
+            btns.append(
+                Button(
+                    x=start_x + 2 * (CAT_BUTTON_SIZE + BUTTON_SPACING),
+                    y=y,
+                    width=CAT_BUTTON_SIZE,
+                    height=CAT_BUTTON_SIZE,
+                    image=graveyard_img,
+                    on_click=lambda: set_category("graveyard"),
                 )
             )
             return btns

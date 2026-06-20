@@ -66,17 +66,23 @@ levels = {
     "classic": {
         os.path.join(
             maps_folder,
-            "classic" + "simple" + "1" + ".tmx",
+            "classic1.tmx",
         ),
         os.path.join(
             maps_folder,
-            "classic" + "simple" + "2" + ".tmx",
+            "classic2.tmx",
         ),
     },
     "desert": {
         os.path.join(
             maps_folder,
-            "desert" + "simple" + "1" + ".tmx",
+            "desert1.tmx",
+        )
+    },
+    "graveyard": {
+        os.path.join(
+            maps_folder,
+            "graveyard1.tmx",
         )
     },
 }
