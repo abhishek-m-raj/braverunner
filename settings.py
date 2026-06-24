@@ -8,3 +8,7 @@ COLTOLERANCE = 5
 VELOCITY = pygame.math.Vector2(10, 0)
 ACCELERATION = pygame.math.Vector2(0, 12)
 GRAVITY = pygame.math.Vector2(0, 12)
+
+MENU_MUSIC_VOLUME = 1.0
+WIN_SOUND_VOLUME = 0.4
+GAME_OVER_SOUND_VOLUME = 0.1

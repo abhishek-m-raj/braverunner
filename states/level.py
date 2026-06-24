@@ -7,7 +7,7 @@ import load_data
 from entities.enemy import Mushroom
 from entities.player import Player, death_animation
 from entities.water import WaterBody
-from load_data import LEVELS, coin_img, coin_sound, menu_folder, spalsh_sound1, spalsh_sound2
+from load_data import LEVELS, coin_img, coin_sound, game_over_sound, menu_folder, spalsh_sound1, spalsh_sound2, win_sound
 from save_manager import complete_level, get_next_level
 from settings import DEBUG, GRAVITY, VELOCITY
 from states.overlay import GameOverlay
@@ -47,6 +47,7 @@ class Level:
         self.water_bodies = []
 
     def draw(self):
+        pygame.mixer.stop()
         run = True
         self.enemies = []
         self.water_bodies = []
@@ -102,12 +103,14 @@ class Level:
 
         def on_back_click():
             nonlocal run
+            pygame.mixer.stop()
             run = False
 
         def on_pause_click():
             status = self.pause_overlay.draw(win)
             if status == "home":
                 nonlocal run
+                pygame.mixer.stop()
                 run = False
             elif status == "quit":
                 pygame.quit()
@@ -116,6 +119,7 @@ class Level:
                 sys.exit()
 
         def on_player_death():
+            pygame.mixer.Sound.play(game_over_sound)
             player.death = True
             death_animation.reset()
             while not death_animation.finished:
@@ -149,6 +153,7 @@ class Level:
                 return True
             elif status == "home":
                 nonlocal run
+                pygame.mixer.stop()
                 run = False
             elif status == "quit":
                 pygame.quit()
@@ -203,6 +208,7 @@ class Level:
             player.y += VELOCITY.y
 
             if self.goal_rect and player_hitbox.colliderect(self.goal_rect):
+                pygame.mixer.Sound.play(win_sound)
                 if self.level_id:
                     complete_level(self.level_id)
 
@@ -230,6 +236,7 @@ class Level:
                     Level(maper, level_id=next_id).draw()
                     return
                 elif status == "home":
+                    pygame.mixer.stop()
                     run = False
                 elif status == "quit":
                     pygame.quit()

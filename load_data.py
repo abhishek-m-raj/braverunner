@@ -2,6 +2,8 @@ import os
 
 import pygame
 
+from settings import GAME_OVER_SOUND_VOLUME, MENU_MUSIC_VOLUME, WIN_SOUND_VOLUME
+
 pygame.init()
 
 # Base Folders
@@ -28,10 +30,15 @@ menu_folder = os.path.join(ui_folder, "menu")
 
 # Audio Loading
 menuBG = pygame.mixer.Sound(os.path.join(music_folder, "he is a pirate.wav"))
+menuBG.set_volume(MENU_MUSIC_VOLUME)
 coin_sound = pygame.mixer.Sound(os.path.join(sfx_folder, "coin.wav"))
 spalsh_sound1 = pygame.mixer.Sound(os.path.join(sfx_folder, "splash1.wav"))
 spalsh_sound2 = pygame.mixer.Sound(os.path.join(sfx_folder, "splash2.wav"))
 jumpland = pygame.mixer.Sound(os.path.join(sfx_folder, "jumpland.wav"))
+game_over_sound = pygame.mixer.Sound(os.path.join(music_folder, "game over"))
+game_over_sound.set_volume(GAME_OVER_SOUND_VOLUME)
+win_sound = pygame.mixer.Sound(os.path.join(music_folder, "win"))
+win_sound.set_volume(WIN_SOUND_VOLUME)
 
 coin_animation_list = [
     pygame.image.load(os.path.join(coin_folder, f"coin{i}.png")) for i in range(1, 9)
