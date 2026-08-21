@@ -46,7 +46,11 @@ I didn't know what Git or GitHub was back then. Version control was completely a
 Fast forward to recently: I was randomly digging through an old Google Drive backup `.zip` file when, to my absolute shock, I found the project folder sitting right there. Booting it up gave me the craziest wave of nostalgia.
 
 <div align="center">
-  <video src="screenshots/old.mp4" controls="controls" width="720" style="max-width:100%;"></video>
+  
+
+https://github.com/user-attachments/assets/4785af9f-5547-4d23-b078-0c7f04f670e4
+
+
   <br />
   <sub>📹 <i>Gameplay footage with code recovered from the Google Drive backup zip</i></sub>
 </div>
