@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 
@@ -12,8 +13,9 @@ from utils.button import Button
 class MainMenu:
     def __init__(self):
         self.levels_menu_screen = LevelsMenu()
+        self.pending_action = None
 
-    def draw(self):
+    async def draw(self):
         win = pygame.display.get_surface()
         if win is None:
             return
@@ -32,6 +34,7 @@ class MainMenu:
 
         buttons = self.init_buttons(win)
         menuBG.play(-1)
+        self.pending_action = None
 
         while True:
             clock.tick(FPS)
@@ -56,7 +59,15 @@ class MainMenu:
                         (screenwidth, screenheight),
                     )
 
+            if self.pending_action == "play":
+                self.pending_action = None
+                await self.play(win)
+            elif self.pending_action == "quit":
+                pygame.quit()
+                sys.exit()
+
             pygame.display.flip()
+            await asyncio.sleep(0)
 
     def init_buttons(self, win):
         buttons = []
@@ -84,7 +95,7 @@ class MainMenu:
             pressed_image=button_bg_image,
             icon=play_button_icon,
             icon_size=30,
-            on_click=lambda: self.play(win),
+            on_click=lambda: self.set_action("play"),
         )
         back_btn = Button(
             x=50,
@@ -96,11 +107,14 @@ class MainMenu:
             pressed_image=button_bg_image,
             icon=back_button_icon,
             icon_size=30,
-            on_click=lambda: pygame.quit(),
+            on_click=lambda: self.set_action("quit"),
         )
         buttons.append(play_btn)
         buttons.append(back_btn)
         return buttons
+
+    def set_action(self, action):
+        self.pending_action = action
 
     def draw_btns(self, win, buttons):
         for btn in buttons:
@@ -108,5 +122,6 @@ class MainMenu:
             btn.update()
             btn.draw(win)
 
-    def play(self, win):
-        self.levels_menu_screen.draw(win)
+    async def play(self, win):
+        await self.levels_menu_screen.draw(win)
+

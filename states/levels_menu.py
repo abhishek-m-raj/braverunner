@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 
@@ -14,9 +15,11 @@ from utils.button import Button
 class LevelsMenu:
     def __init__(self):
         self.run_levels = False
+        self.pending_level = None
 
-    def draw(self, win):
+    async def draw(self, win):
         self.run_levels = True
+        self.pending_level = None
         clock = pygame.time.Clock()
         current_category = None
 
@@ -131,10 +134,7 @@ class LevelsMenu:
 
                 def make_on_click(info):
                     def on_click():
-                        self.start_level(win, info)
-                        nonlocal completed_levels, active_buttons
-                        completed_levels = load_save().get("completed_levels", [])
-                        active_buttons = create_level_buttons(current_category)
+                        self.pending_level = info
                     return on_click
 
                 btn = Button(
@@ -207,10 +207,19 @@ class LevelsMenu:
                     else:
                         active_buttons = create_level_buttons(current_category)
 
-            pygame.display.flip()
+            if self.pending_level:
+                info = self.pending_level
+                self.pending_level = None
+                await self.start_level(win, info)
+                completed_levels = load_save().get("completed_levels", [])
+                active_buttons = create_level_buttons(current_category)
 
-    def start_level(self, win, level_info):
+            pygame.display.flip()
+            await asyncio.sleep(0)
+
+    async def start_level(self, win, level_info):
         menuBG.stop()
         maper = TiledMap(level_info["path"])
-        Level(maper, level_id=level_info["id"]).draw()
+        await Level(maper, level_id=level_info["id"]).draw()
         menuBG.play(-1)
+

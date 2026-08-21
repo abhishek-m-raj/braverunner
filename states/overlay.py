@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 
@@ -16,7 +17,7 @@ class GameOverlay:
         self.run_overlay = False
         self.status = None  # To return choice (e.g., 'resume', 'home')
 
-    def draw(self, win):
+    async def draw(self, win):
         self.run_overlay = True
         self.status = None
         clock = pygame.time.Clock()
@@ -103,6 +104,7 @@ class GameOverlay:
                         )
 
             pygame.display.flip()
+            await asyncio.sleep(0)
 
             if self.status:
                 self.run_overlay = False
@@ -111,3 +113,4 @@ class GameOverlay:
 
     def set_status(self, status):
         self.status = status
+

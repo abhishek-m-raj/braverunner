@@ -28,16 +28,49 @@ mushroom_folder = os.path.join(enemy_folder, "mushroom")
 hud_folder = os.path.join(ui_folder, "hud")
 menu_folder = os.path.join(ui_folder, "menu")
 
+class DummySound:
+    def play(self, *args, **kwargs):
+        pass
+    def stop(self, *args, **kwargs):
+        pass
+    def set_volume(self, *args, **kwargs):
+        pass
+
+
+def load_sound(folder, filename):
+    base, ext = os.path.splitext(filename)
+    candidates = [
+        f"{base}-pygbag.ogg",
+        f"{base}.ogg",
+        f"{base}.wav",
+        f"{base}.mp3",
+        filename,
+        f"{filename}-pygbag.ogg",
+        f"{filename}.ogg",
+        f"{filename}.wav",
+        f"{filename}.mp3",
+    ]
+    for cand in candidates:
+        full_path = os.path.join(folder, cand)
+        if os.path.exists(full_path):
+            try:
+                return pygame.mixer.Sound(full_path)
+            except (pygame.error, Exception) as e:
+                print(f"Failed to load audio candidate {full_path}: {e}")
+    print(f"Warning: Could not load sound {filename}, using dummy sound.")
+    return DummySound()
+
+
 # Audio Loading
-menuBG = pygame.mixer.Sound(os.path.join(music_folder, "he is a pirate.wav"))
+menuBG = load_sound(music_folder, "he is a pirate")
 menuBG.set_volume(MENU_MUSIC_VOLUME)
-coin_sound = pygame.mixer.Sound(os.path.join(sfx_folder, "coin.wav"))
-spalsh_sound1 = pygame.mixer.Sound(os.path.join(sfx_folder, "splash1.wav"))
-spalsh_sound2 = pygame.mixer.Sound(os.path.join(sfx_folder, "splash2.wav"))
-jumpland = pygame.mixer.Sound(os.path.join(sfx_folder, "jumpland.wav"))
-game_over_sound = pygame.mixer.Sound(os.path.join(music_folder, "game over"))
+coin_sound = load_sound(sfx_folder, "coin")
+spalsh_sound1 = load_sound(sfx_folder, "splash1")
+spalsh_sound2 = load_sound(sfx_folder, "splash2")
+jumpland = load_sound(sfx_folder, "jumpland")
+game_over_sound = load_sound(music_folder, "game over")
 game_over_sound.set_volume(GAME_OVER_SOUND_VOLUME)
-win_sound = pygame.mixer.Sound(os.path.join(music_folder, "win"))
+win_sound = load_sound(music_folder, "win")
 win_sound.set_volume(WIN_SOUND_VOLUME)
 
 coin_animation_list = [

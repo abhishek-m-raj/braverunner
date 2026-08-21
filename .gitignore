@@ -1,2 +1,17 @@
+# Python cache
 __pycache__/
+*.pyc
+
+# Environment & Builds
+venv/
+.venv/
+build/
+
+# Saved data
 save.json
+
+# OS / Editor files
+.DS_Store
+.vscode/
+.idea/
+load_data-pygbag.py

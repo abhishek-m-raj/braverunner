@@ -1,3 +1,4 @@
+import asyncio
 import os
 import random
 
@@ -45,14 +46,16 @@ class Level:
         )
         self.enemies = []
         self.water_bodies = []
+        self.pending_overlay = None
 
-    def draw(self):
+    async def draw(self):
         pygame.mixer.stop()
         run = True
         self.enemies = []
         self.water_bodies = []
         self.coins = []
         self.coin_collected = 0
+        self.pending_overlay = None
         win = pygame.display.get_surface()
         if win is None:
             return
@@ -107,18 +110,9 @@ class Level:
             run = False
 
         def on_pause_click():
-            status = self.pause_overlay.draw(win)
-            if status == "home":
-                nonlocal run
-                pygame.mixer.stop()
-                run = False
-            elif status == "quit":
-                pygame.quit()
-                import sys
+            self.pending_overlay = "pause"
 
-                sys.exit()
-
-        def on_player_death():
+        async def on_player_death():
             pygame.mixer.Sound.play(game_over_sound)
             player.death = True
             death_animation.reset()
@@ -134,6 +128,7 @@ class Level:
                 for water in self.water_bodies:
                     water.draw(win, self.scroll)
                 pygame.display.flip()
+                await asyncio.sleep(0)
 
             # Final frame where player is hidden
             self.camera_update(player, win, screenwidth, screenheight)
@@ -144,12 +139,12 @@ class Level:
             for water in self.water_bodies:
                 water.draw(win, self.scroll)
             pygame.display.flip()
-            pygame.time.delay(300)
+            await asyncio.sleep(0.3)
 
-            status = self.death_overlay.draw(win)
+            status = await self.death_overlay.draw(win)
             if status == "restart":
                 player.reset_death()
-                self.draw()
+                await self.draw()
                 return True
             elif status == "home":
                 nonlocal run
@@ -187,6 +182,20 @@ class Level:
 
         while run:
             clock.tick(60)
+
+            if self.pending_overlay == "pause":
+                self.pending_overlay = None
+                status = await self.pause_overlay.draw(win)
+                if status == "home":
+                    pygame.mixer.stop()
+                    run = False
+                    await asyncio.sleep(0)
+                    continue
+                elif status == "quit":
+                    pygame.quit()
+                    import sys
+
+                    sys.exit()
 
             self.camera_update(player, win, screenwidth, screenheight)
 
@@ -229,15 +238,17 @@ class Level:
                     next_path = None
                     next_id = None
                 win_overlay = GameOverlay("Level Complete!", win_buttons)
-                status = win_overlay.draw(win)
+                status = await win_overlay.draw(win)
                 if status == "next":
                     from systems.tilemap import TiledMap
                     maper = TiledMap(next_path)
-                    Level(maper, level_id=next_id).draw()
+                    await Level(maper, level_id=next_id).draw()
                     return
                 elif status == "home":
                     pygame.mixer.stop()
                     run = False
+                    await asyncio.sleep(0)
+                    continue
                 elif status == "quit":
                     pygame.quit()
                     import sys
@@ -260,7 +271,7 @@ class Level:
                         self.enemies.remove(enemy)
                         VELOCITY.y = -12  # Bounce
                     else:
-                        if on_player_death():
+                        if await on_player_death():
                             return
 
             player_hitbox = pygame.Rect(player.x + 22, player.y + 22, 20, 42)
@@ -348,6 +359,7 @@ class Level:
                 water.draw(win, self.scroll)
 
             pygame.display.flip()
+            await asyncio.sleep(0)
 
     def camera_update(self, player, win, screenwidth, screenheight):
         left_border = 0
@@ -390,3 +402,4 @@ class Level:
             (player.x + 22 - self.scroll[0], player.y + 22 - self.scroll[1], 20, 42),
             2,
         )
+
